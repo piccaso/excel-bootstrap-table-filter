@@ -1,7 +1,7 @@
 export class FilterMenu {
 
-  th:                 HTMLElement;
-  tds:                Array<HTMLElement>;
+  th:                 Element;
+  tds:                Array<Element>;
   column:             number;
   index:              number;
   menu:               HTMLElement;
@@ -11,7 +11,7 @@ export class FilterMenu {
   options:            Options;
   target:             JQuery;
 
-  constructor (target: JQuery, th: HTMLElement, column: number, index: number, options: Options) {
+  constructor (target: JQuery, th: Element, column: number, index: number, options: Options) {
     this.options = options;
     this.th = th;
     this.column = column;
@@ -158,7 +158,7 @@ export class FilterMenu {
     let dropdownFilterContent = document.createElement('div');
     dropdownFilterContent.className = 'dropdown-filter-content';
 
-    let innerDivs = this.tds.reduce(function(arr, el) {
+    let innerDivs = this.tds.reduce(function(arr, el: HTMLElement) {
       // get unique values in column
       let values = arr.map((el) => el.innerText.trim());
       if (values.indexOf(el.innerText.trim()) < 0) arr.push(el);

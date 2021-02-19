@@ -3,9 +3,9 @@ import { FilterMenu } from './FilterMenu'
 export class FilterCollection {
 
   filterMenus:  Array<FilterMenu>;
-  rows:         Array<HTMLElement>;
-  ths:          Array<HTMLElement>;
-  table:        HTMLElement;
+  rows:         Array<Element>;
+  ths:          Array<Element>;
+  table:        Element;
   options:      Options;
   target:       JQuery;
 
@@ -88,9 +88,9 @@ export class FilterCollection {
     });
   }
 
-  private updateRowVisibility(filterMenus: Array<FilterMenu>, rows: Array<HTMLElement>, ths: Array<HTMLElement>): void {
+  private updateRowVisibility(filterMenus: Array<FilterMenu>, rows: Array<Element>, ths: Array<Element>): void {
     let showRows = rows;
-    let hideRows: Array<HTMLElement> = [];
+    let hideRows: Array<Element> = [];
     let selectedLists = filterMenus.map(function(filterMenu) {
       return {
         column: filterMenu.column,
@@ -115,7 +115,7 @@ export class FilterCollection {
     }
   }
 
-  private sort(column: number, order: string, table: HTMLElement, options: Options): void {
+  private sort(column: number, order: string, table: Element, options: Options): void {
     let flip = 1;
     if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
     let tbody = $(table).find('tbody').get(0);
