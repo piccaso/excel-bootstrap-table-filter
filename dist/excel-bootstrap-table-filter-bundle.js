@@ -192,6 +192,7 @@ var FilterCollection = function () {
         });
         this.rows = target.find('tbody').find('tr').toArray();
         this.table = target.get(0);
+        this.tbody = target.find('tbody').get(0);
     }
     FilterCollection.prototype.initialize = function () {
         this.filterMenus.forEach(function (filterMenu) {
@@ -205,30 +206,33 @@ var FilterCollection = function () {
     FilterCollection.prototype.bindCheckboxes = function () {
         var filterMenus = this.filterMenus;
         var rows = this.rows;
+        var tbody = this.tbody;
         var ths = this.ths;
         var updateRowVisibility = this.updateRowVisibility;
         this.target.find('.dropdown-filter-menu-item.item').change(function () {
             var index = $(this).data('index');
             var value = $(this).val();
             filterMenus[index].updateSelectAll();
-            updateRowVisibility(filterMenus, rows, ths);
+            updateRowVisibility(filterMenus, rows, ths, tbody);
         });
     };
     FilterCollection.prototype.bindSelectAllCheckboxes = function () {
         var filterMenus = this.filterMenus;
         var rows = this.rows;
+        var tbody = this.tbody;
         var ths = this.ths;
         var updateRowVisibility = this.updateRowVisibility;
         this.target.find('.dropdown-filter-menu-item.select-all').change(function () {
             var index = $(this).data('index');
             var value = this.checked;
             filterMenus[index].selectAllUpdate(value);
-            updateRowVisibility(filterMenus, rows, ths);
+            updateRowVisibility(filterMenus, rows, ths, tbody);
         });
     };
     FilterCollection.prototype.bindSort = function () {
         var filterMenus = this.filterMenus;
         var rows = this.rows;
+        var tbody = this.tbody;
         var ths = this.ths;
         var sort = this.sort;
         var table = this.table;
@@ -239,12 +243,13 @@ var FilterCollection = function () {
             var column = $sortElement.data('column');
             var order = $sortElement.attr('class');
             sort(column, order, table, options);
-            updateRowVisibility(filterMenus, rows, ths);
+            updateRowVisibility(filterMenus, rows, ths, tbody);
         });
     };
     FilterCollection.prototype.bindSearch = function () {
         var filterMenus = this.filterMenus;
         var rows = this.rows;
+        var tbody = this.tbody;
         var ths = this.ths;
         var updateRowVisibility = this.updateRowVisibility;
         this.target.find('.dropdown-filter-search').keyup(function () {
@@ -252,10 +257,10 @@ var FilterCollection = function () {
             var index = $input.data('index');
             var value = $input.val();
             filterMenus[index].searchToggle(value);
-            updateRowVisibility(filterMenus, rows, ths);
+            updateRowVisibility(filterMenus, rows, ths, tbody);
         });
     };
-    FilterCollection.prototype.updateRowVisibility = function (filterMenus, rows, ths) {
+    FilterCollection.prototype.updateRowVisibility = function (filterMenus, rows, ths, tbody) {
         var showRows = rows;
         var hideRows = [];
         var selectedLists = filterMenus.map(function (filterMenu) {
@@ -268,6 +273,7 @@ var FilterCollection = function () {
                 })
             };
         });
+        if (rows.length > 100) $(tbody).hide();
         for (var i = 0; i < rows.length; i++) {
             var tds = rows[i].children;
             for (var j = 0; j < selectedLists.length; j++) {
@@ -279,6 +285,7 @@ var FilterCollection = function () {
                 $(rows[i]).show();
             }
         }
+        if (rows.length > 100) $(tbody).show();
     };
     FilterCollection.prototype.sort = function (column, order, table, options) {
         var flip = 1;

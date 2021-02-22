@@ -6,6 +6,7 @@ export class FilterCollection {
   rows:         Array<Element>;
   ths:          Array<Element>;
   table:        Element;
+  tbody:        Element;
   options:      Options;
   target:       JQuery;
 
@@ -19,6 +20,7 @@ export class FilterCollection {
     });
     this.rows = target.find('tbody').find('tr').toArray();
     this.table = target.get(0);
+    this.tbody = target.find('tbody').get(0);
   }
 
   public initialize(): void {
@@ -34,32 +36,35 @@ export class FilterCollection {
   private bindCheckboxes(): void {
     let filterMenus = this.filterMenus;
     let rows = this.rows;
+    let tbody = this.tbody;
     let ths = this.ths;
     let updateRowVisibility = this.updateRowVisibility;
     this.target.find('.dropdown-filter-menu-item.item').change(function() {
       let index = $(this).data('index');
       let value = $(this).val();
       filterMenus[index].updateSelectAll();
-      updateRowVisibility(filterMenus, rows, ths);
+      updateRowVisibility(filterMenus, rows, ths, tbody);
     });
   }
 
   private bindSelectAllCheckboxes(): void {
     let filterMenus = this.filterMenus;
     let rows = this.rows;
+    let tbody = this.tbody;
     let ths = this.ths;
     let updateRowVisibility = this.updateRowVisibility;
     this.target.find('.dropdown-filter-menu-item.select-all').change(function() {
       let index = $(this).data('index');
       let value = this.checked;
       filterMenus[index].selectAllUpdate(value);
-      updateRowVisibility(filterMenus, rows, ths);
+      updateRowVisibility(filterMenus, rows, ths, tbody);
     });
   }
 
   private bindSort(): void {
     let filterMenus = this.filterMenus;
     let rows = this.rows;
+    let tbody = this.tbody;
     let ths = this.ths;
     let sort = this.sort;
     let table = this.table;
@@ -70,13 +75,14 @@ export class FilterCollection {
       let column = $sortElement.data('column');
       let order = $sortElement.attr('class');
       sort(column, order, table, options);
-      updateRowVisibility(filterMenus, rows, ths);
+      updateRowVisibility(filterMenus, rows, ths, tbody);
     });
   }
 
   private bindSearch(): void {
     let filterMenus = this.filterMenus;
     let rows = this.rows;
+    let tbody = this.tbody;
     let ths = this.ths;
     let updateRowVisibility = this.updateRowVisibility;
     this.target.find('.dropdown-filter-search').keyup(function() {
@@ -84,11 +90,11 @@ export class FilterCollection {
       let index = $input.data('index');
       let value = $input.val();
       filterMenus[index].searchToggle(value);
-      updateRowVisibility(filterMenus, rows, ths);
+      updateRowVisibility(filterMenus, rows, ths, tbody);
     });
   }
 
-  private updateRowVisibility(filterMenus: Array<FilterMenu>, rows: Array<Element>, ths: Array<Element>): void {
+  private updateRowVisibility(filterMenus: Array<FilterMenu>, rows: Array<Element>, ths: Array<Element>, tbody:Element): void {
     let showRows = rows;
     let hideRows: Array<Element> = [];
     let selectedLists = filterMenus.map(function(filterMenu) {
@@ -102,6 +108,8 @@ export class FilterCollection {
           })
       };
     });
+    if (rows.length > 100)
+      $(tbody).hide();
     for (let i=0; i < rows.length; i++) {
       let tds = rows[i].children;
       for (let j=0; j < selectedLists.length; j++) {
@@ -113,6 +121,8 @@ export class FilterCollection {
         $(rows[i]).show();
       }
     }
+    if (rows.length > 100)
+      $(tbody).show();
   }
 
   private sort(column: number, order: string, table: Element, options: Options): void {
