@@ -116,11 +116,13 @@ var FilterMenu = function () {
         var self = this;
         var dropdownFilterContent = document.createElement('div');
         dropdownFilterContent.className = 'dropdown-filter-content';
+        var values = [];
         var innerDivs = this.tds.reduce(function (arr, el) {
-            var values = arr.map(function (el) {
-                return el.innerText.trim();
-            });
-            if (values.indexOf(el.innerText.trim()) < 0) arr.push(el);
+            var elt = el.innerText.trim();
+            if (values.indexOf(elt) < 0) {
+                arr.push(el);
+                values.push(elt);
+            }
             return arr;
         }, []).sort(function (a, b) {
             var A = a.innerText.toLowerCase();

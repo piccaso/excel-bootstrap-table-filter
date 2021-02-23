@@ -158,10 +158,14 @@ export class FilterMenu {
     let dropdownFilterContent = document.createElement('div');
     dropdownFilterContent.className = 'dropdown-filter-content';
 
+    let values: string[] = [];
     let innerDivs = this.tds.reduce(function(arr, el: HTMLElement) {
       // get unique values in column
-      let values = arr.map((el) => el.innerText.trim());
-      if (values.indexOf(el.innerText.trim()) < 0) arr.push(el);
+      let elt = el.innerText.trim()
+      if (values.indexOf(elt) < 0) {
+        arr.push(el);
+        values.push(elt);
+      }
       // return unique values
       return arr;
     }, [])
