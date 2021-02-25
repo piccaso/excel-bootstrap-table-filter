@@ -90,7 +90,7 @@ export class FilterMenu {
     // build input
     let input = document.createElement('input');
     input.type = 'checkbox';
-    input.value = value.trim().replace(/ +(?= )/g,'');
+    input.value = value.trim().replace(/ *$/g,'');
     input.setAttribute('checked','checked');
     input.className = 'dropdown-filter-menu-item item';
     // get index of td element
@@ -158,17 +158,22 @@ export class FilterMenu {
     let dropdownFilterContent = document.createElement('div');
     dropdownFilterContent.className = 'dropdown-filter-content';
 
-    let values: string[] = [];
+    let count : {[element : string] : number} = {};
     let innerDivs = this.tds.reduce(function(arr, el: HTMLElement) {
       // get unique values in column
       let elt = el.innerText.trim()
-      if (values.indexOf(elt) < 0) {
-        arr.push(el);
-        values.push(elt);
+      if (count[elt] === undefined) {
+        let elc = el.cloneNode(true)
+        arr.push(elc);
+        count[elt] = 1
+      } else {
+        count[elt] += 1
       }
       // return unique values
+      //console.log(arr)
       return arr;
     }, [])
+    .map(function(v) { v.innerText += ' (' + String(count[v.innerText.trim()]) + ')'; return v; })
     .sort(function(a, b) {
       // sort values for display in dropdown
       var A = a.innerText.toLowerCase();

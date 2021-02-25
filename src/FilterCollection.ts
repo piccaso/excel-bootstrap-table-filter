@@ -100,27 +100,30 @@ export class FilterCollection {
     let selectedLists = filterMenus.map(function(filterMenu) {
       return {
         column: filterMenu.column,
-        selected: filterMenu.inputs
+        selected: new Set(filterMenu.inputs
           .filter(function(input: HTMLInputElement) {
             return input.checked
           }).map(function(input: HTMLInputElement) {
-            return input.value.trim().replace(/ +(?= )/g,'');
-          })
+            return input.value.trim().replace(/ *\(\d+\)$/g,'');
+          }))
       };
     });
     if (rows.length > 100)
       $(tbody).hide();
     for (let i=0; i < rows.length; i++) {
       let tds = rows[i].children;
+      let found : boolean = true
       for (let j=0; j < selectedLists.length; j++) {
-        let content = (tds[selectedLists[j].column] as HTMLElement).innerText.trim().replace(/ +(?= )/g,'')
-        if (selectedLists[j].selected.indexOf(content) === -1 ) {
+        let content = (tds[selectedLists[j].column] as HTMLElement).innerText.trim().replace(/ *$/g,'')
+        if (!selectedLists[j].selected.has(content)) {
           $(rows[i]).hide();
+          found = false
           break;
         }
-        $(rows[i]).show();
       }
-    }
+      if (found)
+        $(rows[i]).show();
+}
     if (rows.length > 100)
       $(tbody).show();
   }
