@@ -1,4 +1,5 @@
 import { FilterMenu } from './FilterMenu'
+import debounce from './Debounce'
 
 export class FilterCollection {
 
@@ -85,13 +86,15 @@ export class FilterCollection {
     let tbody = this.tbody;
     let ths = this.ths;
     let updateRowVisibility = this.updateRowVisibility;
-    this.target.find('.dropdown-filter-search').keyup(function() {
+    const handler = function() {
       let $input = $(this).find('input');
       let index = $input.data('index');
       let value = $input.val();
       filterMenus[index].searchToggle(value);
       updateRowVisibility(filterMenus, rows, ths, tbody);
-    });
+    };
+    const debouncedHandler = debounce(handler);
+    this.target.find('.dropdown-filter-search').keyup(debouncedHandler);
   }
 
   private updateRowVisibility(filterMenus: Array<FilterMenu>, rows: Array<Element>, ths: Array<Element>, tbody:Element): void {
