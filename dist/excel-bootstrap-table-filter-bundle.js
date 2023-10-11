@@ -239,6 +239,24 @@ var FilterMenu = function () {
     return FilterMenu;
 }();
 
+function debounce(fn) {
+    var ms = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 600;
+
+    var timeoutId = void 0;
+    return function () {
+        var _this = this;
+
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(function () {
+            return fn.apply(_this, args);
+        }, ms);
+    };
+}
+
 var FilterCollection = function () {
     function FilterCollection(target, options) {
         classCallCheck(this, FilterCollection);
@@ -323,13 +341,15 @@ var FilterCollection = function () {
             var tbody = this.tbody;
             var ths = this.ths;
             var updateRowVisibility = this.updateRowVisibility;
-            this.target.find('.dropdown-filter-search').keyup(function () {
+            var handler = function handler() {
                 var $input = $(this).find('input');
                 var index = $input.data('index');
                 var value = $input.val();
                 filterMenus[index].searchToggle(value);
                 updateRowVisibility(filterMenus, rows, ths, tbody);
-            });
+            };
+            var dHandler = debounce(handler);
+            this.target.find('.dropdown-filter-search').keyup(dHandler);
         }
     }, {
         key: 'updateRowVisibility',
