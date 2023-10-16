@@ -126,7 +126,7 @@ export class FilterCollection {
       }
       if (found)
         $(rows[i]).show();
-}
+    }
     if (rows.length > 100)
       $(tbody).show();
   }
@@ -134,27 +134,30 @@ export class FilterCollection {
   private sort(column: number, order: string, table: Element, options: Options): void {
     let flip = 1;
     if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
-    let tbody = $(table).find('tbody').get(0);
-    let rows = $(tbody).find('tr').get();
+    const tbody = table.querySelector('tbody');
+    const rows = Array.from(tbody.querySelectorAll('tr')).map(el => el as HTMLElement);
 
-    rows.sort(function(a, b) {
-      var A = (a.children[column] as HTMLElement).innerText.toUpperCase();
-      var B = (b.children[column] as HTMLElement).innerText.toUpperCase();
-
-      if (!isNaN(Number(A)) && !isNaN(Number(B))) {
-        // handle numbers
-        if(Number(A) < Number(B)) return -1*flip;
-        if(Number(A) > Number(B)) return  1*flip;
+    let stringFound = false;
+    const filterRows = rows.map(el => {
+      let str = (el.children[column] as HTMLElement).innerText.toLowerCase();
+      let nr = Number(str);
+      if (!stringFound) {
+        if (isNaN(nr)) stringFound = true;
+      }
+      return { el, nr, str };
+    }).sort((a, b) => {
+      if (stringFound) {
+        if (a.str < b.str) return -1 * flip;
+        if (a.str > b.str) return 1 * flip;
       } else {
-        // handle strings
-        if(A < B) return -1*flip;
-        if(A > B) return  1*flip;
+        if (a.nr < b.nr) return -1 * flip;
+        if (a.nr > b.nr) return 1 * flip;
       }
       return 0;
     });
 
-    for (var i=0; i < rows.length; i++) {
-      tbody.appendChild(rows[i]);
+    for (var i = 0; i < filterRows.length; i++) {
+      tbody.appendChild(filterRows[i].el);
     }
   }
 

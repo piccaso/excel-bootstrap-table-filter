@@ -348,8 +348,8 @@ var FilterCollection = function () {
                 filterMenus[index].searchToggle(value);
                 updateRowVisibility(filterMenus, rows, ths, tbody);
             };
-            var dHandler = debounce(handler);
-            this.target.find('.dropdown-filter-search').keyup(dHandler);
+            var debouncedHandler = debounce(handler);
+            this.target.find('.dropdown-filter-search').keyup(debouncedHandler);
         }
     }, {
         key: 'updateRowVisibility',
@@ -387,22 +387,30 @@ var FilterCollection = function () {
         value: function sort(column, order, table, options) {
             var flip = 1;
             if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
-            var tbody = $(table).find('tbody').get(0);
-            var rows = $(tbody).find('tr').get();
-            rows.sort(function (a, b) {
-                var A = a.children[column].innerText.toUpperCase();
-                var B = b.children[column].innerText.toUpperCase();
-                if (!isNaN(Number(A)) && !isNaN(Number(B))) {
-                    if (Number(A) < Number(B)) return -1 * flip;
-                    if (Number(A) > Number(B)) return 1 * flip;
+            var tbody = table.querySelector('tbody');
+            var rows = Array.from(tbody.querySelectorAll('tr')).map(function (el) {
+                return el;
+            });
+            var stringFound = false;
+            var filterRows = rows.map(function (el) {
+                var str = el.children[column].innerText.toLowerCase();
+                var nr = Number(str);
+                if (!stringFound) {
+                    if (isNaN(nr)) stringFound = true;
+                }
+                return { el: el, nr: nr, str: str };
+            }).sort(function (a, b) {
+                if (stringFound) {
+                    if (a.str < b.str) return -1 * flip;
+                    if (a.str > b.str) return 1 * flip;
                 } else {
-                    if (A < B) return -1 * flip;
-                    if (A > B) return 1 * flip;
+                    if (a.nr < b.nr) return -1 * flip;
+                    if (a.nr > b.nr) return 1 * flip;
                 }
                 return 0;
             });
-            for (var i = 0; i < rows.length; i++) {
-                tbody.appendChild(rows[i]);
+            for (var i = 0; i < filterRows.length; i++) {
+                tbody.appendChild(filterRows[i].el);
             }
         }
     }]);
