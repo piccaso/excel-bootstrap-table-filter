@@ -157,7 +157,7 @@ export class FilterMenu {
     // build holder div
     let dropdownFilterContent = document.createElement('div');
     dropdownFilterContent.className = 'dropdown-filter-content';
-
+    let stringFound = false;
     let count : {[element : string] : number} = {};
     let innerDivs = this.tds.reduce(function(arr, el: HTMLElement) {
       // get unique values in column
@@ -173,31 +173,29 @@ export class FilterMenu {
       //console.log(arr)
       return arr;
     }, [])
-    .map(function(v) { v.innerText += ' (' + String(count[v.innerText.trim()]) + ')'; return v; })
-    .sort(function(a, b) {
-      // sort values for display in dropdown
-      var A = a.innerText.toLowerCase();
-      var B = b.innerText.toLowerCase();
-
-      if (!isNaN(Number(A)) && !isNaN(Number(B))) {
-
-        // handle numbers
-        if(Number(A) < Number(B)) return -1;
-        if(Number(A) > Number(B)) return  1;
-
-      } else {
-
-        // handle strings
-        if(A < B) return -1;
-        if(A > B) return  1;
-
+    .map(function(v) { 
+      v.innerText += ' (' + String(count[v.innerText.trim()]) + ')'; 
+      const str = v.innerText.toLowerCase();
+      const nr = Number(str);
+      if(!stringFound){
+        if(isNaN(nr)) stringFound=true;
       }
-      //return a.innerText.toLowerCase() > b.innerText.toLowerCase() ? 1 : -1;
+
+      return {el:v,str,nr}; 
+    })
+    .sort(function(a, b) {
+      if (stringFound) {
+        if(a.str < b.str) return -1;
+        if(a.str > b.str) return  1;
+      } else {
+        if(a.nr < b.nr) return -1;
+        if(a.nr > b.nr) return  1;
+      }
       return 0;
     })
     // create dropdown filter items out of each value
     .map( (td) => {
-      return this.dropdownFilterItem(td, self);
+      return this.dropdownFilterItem(td.el, self);
     })
 
     // map inputs to instance, we will need these later
@@ -243,8 +241,15 @@ export class FilterMenu {
     icon.className = 'arrow-down';
     arrow.appendChild(icon);
     dropdownFilterDropdown.appendChild(arrow);
-    dropdownFilterDropdown.appendChild(this.dropdownFilterContent());
-
+    const dropdownFilterContent = this.dropdownFilterContent();
+    dropdownFilterDropdown.appendChild(dropdownFilterContent);
+    const updateFn = function() {
+      dropdownFilterContent.innerHTML = this.dropdownFilterContent().innerHTML;
+    };
+    dropdownFilterContent.setAttribute("updateable", "updateable");
+    (dropdownFilterContent as any).update = updateFn;
+    dropdownFilterContent.addEventListener("update", updateFn);
+    
     if ($(this.th).hasClass('no-sort')) {
       $(dropdownFilterDropdown).find('.dropdown-filter-sort').remove();
     }
