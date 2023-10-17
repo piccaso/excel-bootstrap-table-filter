@@ -49,7 +49,7 @@ var FilterMenu = function () {
             var $content = $(this.menu.children[1]);
             var $menu = $(this.menu);
             var updateContent = function updateContent() {
-                var newEl = _this.dropdownFilterDropdown();
+                var newEl = _this.dropdownFilterDropdown().children[1];
                 var oldEl = _this.menu.children[1];
                 _this.menu.replaceChild(newEl, oldEl);
                 $content = $(_this.menu.children[1]);
