@@ -30,7 +30,8 @@ export class FilterMenu {
 
     const updateContent = () => {
       const newEl = this.dropdownFilterDropdown();
-      this.menu.children[1] = newEl.children[1];
+      const oldEl = this.menu.children[1];
+      this.menu.replaceChild(newEl, oldEl);
       $content = $(this.menu.children[1]);
     };
 

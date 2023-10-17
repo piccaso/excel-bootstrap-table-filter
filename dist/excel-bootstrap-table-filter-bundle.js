@@ -50,7 +50,8 @@ var FilterMenu = function () {
             var $menu = $(this.menu);
             var updateContent = function updateContent() {
                 var newEl = _this.dropdownFilterDropdown();
-                _this.menu.children[1] = newEl.children[1];
+                var oldEl = _this.menu.children[1];
+                _this.menu.replaceChild(newEl, oldEl);
                 $content = $(_this.menu.children[1]);
             };
             this.th.setAttribute('hasRefresh', 'hasRefresh');
