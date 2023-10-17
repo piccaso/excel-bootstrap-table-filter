@@ -41,11 +41,20 @@ var FilterMenu = function () {
     createClass(FilterMenu, [{
         key: 'initialize',
         value: function initialize() {
+            var _this = this;
+
             this.menu = this.dropdownFilterDropdown();
             this.th.appendChild(this.menu);
             var $trigger = $(this.menu.children[0]);
             var $content = $(this.menu.children[1]);
             var $menu = $(this.menu);
+            var updateContent = function updateContent() {
+                var newEl = _this.dropdownFilterDropdown();
+                _this.menu.children[1] = newEl.children[1];
+                $content = $(_this.menu.children[1]);
+            };
+            this.th.setAttribute('hasRefresh', 'hasRefresh');
+            this.th.addEventListener('refresh', updateContent);
             $trigger.click(function () {
                 return $content.toggle();
             });
@@ -159,7 +168,7 @@ var FilterMenu = function () {
     }, {
         key: 'dropdownFilterContent',
         value: function dropdownFilterContent() {
-            var _this = this;
+            var _this2 = this;
 
             var self = this;
             var dropdownFilterContent = document.createElement('div');
@@ -194,7 +203,7 @@ var FilterMenu = function () {
                 }
                 return 0;
             }).map(function (td) {
-                return _this.dropdownFilterItem(td.el, self);
+                return _this2.dropdownFilterItem(td.el, self);
             });
             this.inputs = innerDivs.map(function (div) {
                 return div.firstElementChild;
@@ -220,8 +229,6 @@ var FilterMenu = function () {
     }, {
         key: 'dropdownFilterDropdown',
         value: function dropdownFilterDropdown() {
-            var _this2 = this;
-
             var dropdownFilterDropdown = document.createElement('div');
             dropdownFilterDropdown.className = 'dropdown-filter-dropdown';
             var arrow = document.createElement('span');
@@ -232,12 +239,6 @@ var FilterMenu = function () {
             dropdownFilterDropdown.appendChild(arrow);
             var dropdownFilterContent = this.dropdownFilterContent();
             dropdownFilterDropdown.appendChild(dropdownFilterContent);
-            var updateFn = function updateFn() {
-                dropdownFilterContent.innerHTML = _this2.dropdownFilterContent().innerHTML;
-            };
-            dropdownFilterContent.setAttribute("hasRefresh", "hasRefresh");
-            dropdownFilterContent.refresh = updateFn;
-            dropdownFilterContent.addEventListener("refresh", updateFn);
             if ($(this.th).hasClass('no-sort')) {
                 $(dropdownFilterDropdown).find('.dropdown-filter-sort').remove();
             }

@@ -28,6 +28,15 @@ export class FilterMenu {
     let $content = $(this.menu.children[1]);
     let $menu = $(this.menu);
 
+    const updateContent = () => {
+      const newEl = this.dropdownFilterDropdown();
+      this.menu.children[1] = newEl.children[1];
+      $content = $(this.menu.children[1]);
+    };
+
+    this.th.setAttribute('hasRefresh','hasRefresh');
+    this.th.addEventListener('refresh', updateContent);
+
     // toggle hide/show when the trigger is clicked
     $trigger.click(() => $content.toggle());
 
@@ -243,13 +252,7 @@ export class FilterMenu {
     dropdownFilterDropdown.appendChild(arrow);
     const dropdownFilterContent = this.dropdownFilterContent();
     dropdownFilterDropdown.appendChild(dropdownFilterContent);
-    const updateFn = () => {
-      dropdownFilterContent.innerHTML = this.dropdownFilterContent().innerHTML;
-    };
-    dropdownFilterContent.setAttribute("hasRefresh", "hasRefresh");
-    (dropdownFilterContent as any).refresh = updateFn;
-    dropdownFilterContent.addEventListener("refresh", updateFn);
-    
+        
     if ($(this.th).hasClass('no-sort')) {
       $(dropdownFilterDropdown).find('.dropdown-filter-sort').remove();
     }
