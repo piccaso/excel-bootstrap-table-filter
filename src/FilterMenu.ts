@@ -243,12 +243,12 @@ export class FilterMenu {
     dropdownFilterDropdown.appendChild(arrow);
     const dropdownFilterContent = this.dropdownFilterContent();
     dropdownFilterDropdown.appendChild(dropdownFilterContent);
-    const updateFn = function() {
+    const updateFn = () => {
       dropdownFilterContent.innerHTML = this.dropdownFilterContent().innerHTML;
     };
-    dropdownFilterContent.setAttribute("updateable", "updateable");
-    (dropdownFilterContent as any).update = updateFn;
-    dropdownFilterContent.addEventListener("update", updateFn);
+    dropdownFilterContent.setAttribute("hasRefresh", "hasRefresh");
+    (dropdownFilterContent as any).refresh = updateFn;
+    dropdownFilterContent.addEventListener("refresh", updateFn);
     
     if ($(this.th).hasClass('no-sort')) {
       $(dropdownFilterDropdown).find('.dropdown-filter-sort').remove();

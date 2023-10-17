@@ -220,6 +220,8 @@ var FilterMenu = function () {
     }, {
         key: 'dropdownFilterDropdown',
         value: function dropdownFilterDropdown() {
+            var _this2 = this;
+
             var dropdownFilterDropdown = document.createElement('div');
             dropdownFilterDropdown.className = 'dropdown-filter-dropdown';
             var arrow = document.createElement('span');
@@ -231,11 +233,11 @@ var FilterMenu = function () {
             var dropdownFilterContent = this.dropdownFilterContent();
             dropdownFilterDropdown.appendChild(dropdownFilterContent);
             var updateFn = function updateFn() {
-                dropdownFilterContent.innerHTML = this.dropdownFilterContent().innerHTML;
+                dropdownFilterContent.innerHTML = _this2.dropdownFilterContent().innerHTML;
             };
-            dropdownFilterContent.setAttribute("updateable", "updateable");
-            dropdownFilterContent.update = updateFn;
-            dropdownFilterContent.addEventListener("update", updateFn);
+            dropdownFilterContent.setAttribute("hasRefresh", "hasRefresh");
+            dropdownFilterContent.refresh = updateFn;
+            dropdownFilterContent.addEventListener("refresh", updateFn);
             if ($(this.th).hasClass('no-sort')) {
                 $(dropdownFilterDropdown).find('.dropdown-filter-sort').remove();
             }
