@@ -135,10 +135,10 @@ export class FilterCollection {
     let flip = 1;
     if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
     const tbody = table.querySelector('tbody');
-    const rows = Array.from(tbody.querySelectorAll('tr')).map(el => el as HTMLElement);
-
     let stringFound = false;
-    const filterRows = rows.map(el => {
+    const rows = Array.from(tbody.querySelectorAll('tr'))
+    .map(el => el as HTMLElement)
+    .map(el => {
       let str = (el.children[column] as HTMLElement).innerText.toLowerCase();
       let nr = Number(str);
       if (!stringFound) {
@@ -156,8 +156,8 @@ export class FilterCollection {
       return 0;
     });
 
-    for (var i = 0; i < filterRows.length; i++) {
-      tbody.appendChild(filterRows[i].el);
+    for (var i = 0; i < rows.length; i++) {
+      tbody.appendChild(rows[i].el);
     }
   }
 

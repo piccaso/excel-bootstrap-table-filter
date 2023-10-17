@@ -164,6 +164,7 @@ var FilterMenu = function () {
             var self = this;
             var dropdownFilterContent = document.createElement('div');
             dropdownFilterContent.className = 'dropdown-filter-content';
+            var stringFound = false;
             var count = {};
             var innerDivs = this.tds.reduce(function (arr, el) {
                 var elt = el.innerText.trim();
@@ -176,20 +177,24 @@ var FilterMenu = function () {
                 }
                 return arr;
             }, []).map(function (v) {
-                v.innerText += ' (' + String(count[v.innerText.trim()]) + ')';return v;
+                v.innerText += ' (' + String(count[v.innerText.trim()]) + ')';
+                var str = v.innerText.toLowerCase();
+                var nr = Number(str);
+                if (!stringFound) {
+                    if (isNaN(nr)) stringFound = true;
+                }
+                return { el: v, str: str, nr: nr };
             }).sort(function (a, b) {
-                var A = a.innerText.toLowerCase();
-                var B = b.innerText.toLowerCase();
-                if (!isNaN(Number(A)) && !isNaN(Number(B))) {
-                    if (Number(A) < Number(B)) return -1;
-                    if (Number(A) > Number(B)) return 1;
+                if (stringFound) {
+                    if (a.str < b.str) return -1;
+                    if (a.str > b.str) return 1;
                 } else {
-                    if (A < B) return -1;
-                    if (A > B) return 1;
+                    if (a.nr < b.nr) return -1;
+                    if (a.nr > b.nr) return 1;
                 }
                 return 0;
             }).map(function (td) {
-                return _this.dropdownFilterItem(td, self);
+                return _this.dropdownFilterItem(td.el, self);
             });
             this.inputs = innerDivs.map(function (div) {
                 return div.firstElementChild;
@@ -223,7 +228,14 @@ var FilterMenu = function () {
             icon.className = 'arrow-down';
             arrow.appendChild(icon);
             dropdownFilterDropdown.appendChild(arrow);
-            dropdownFilterDropdown.appendChild(this.dropdownFilterContent());
+            var dropdownFilterContent = this.dropdownFilterContent();
+            dropdownFilterDropdown.appendChild(dropdownFilterContent);
+            var updateFn = function updateFn() {
+                dropdownFilterContent.innerHTML = this.dropdownFilterContent().innerHTML;
+            };
+            dropdownFilterContent.setAttribute("updateable", "updateable");
+            dropdownFilterContent.update = updateFn;
+            dropdownFilterContent.addEventListener("update", updateFn);
             if ($(this.th).hasClass('no-sort')) {
                 $(dropdownFilterDropdown).find('.dropdown-filter-sort').remove();
             }
@@ -388,11 +400,10 @@ var FilterCollection = function () {
             var flip = 1;
             if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
             var tbody = table.querySelector('tbody');
+            var stringFound = false;
             var rows = Array.from(tbody.querySelectorAll('tr')).map(function (el) {
                 return el;
-            });
-            var stringFound = false;
-            var filterRows = rows.map(function (el) {
+            }).map(function (el) {
                 var str = el.children[column].innerText.toLowerCase();
                 var nr = Number(str);
                 if (!stringFound) {
@@ -409,8 +420,8 @@ var FilterCollection = function () {
                 }
                 return 0;
             });
-            for (var i = 0; i < filterRows.length; i++) {
-                tbody.appendChild(filterRows[i].el);
+            for (var i = 0; i < rows.length; i++) {
+                tbody.appendChild(rows[i].el);
             }
         }
     }]);
