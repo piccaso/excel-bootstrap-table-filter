@@ -1,3 +1,4 @@
+import { FilterCollection } from './FilterCollection'
 export class FilterMenu {
 
   th:                 Element;
@@ -10,13 +11,15 @@ export class FilterMenu {
   searchFilter:       Element;
   options:            Options;
   target:             JQuery;
+  filterCollection:   FilterCollection;
 
-  constructor (target: JQuery, th: Element, column: number, index: number, options: Options) {
+  constructor (target: JQuery, th: Element, column: number, index: number, options: Options, filterCollection: FilterCollection) {
     this.options = options;
     this.th = th;
     this.column = column;
     this.index = index;
     this.tds = target.find('tbody tr td:nth-child(' + (this.column + 1) + ')').toArray();
+    this.filterCollection = filterCollection;
   }
 
   public initialize(): void {
@@ -33,6 +36,7 @@ export class FilterMenu {
       const oldEl = this.menu.children[1];
       this.menu.replaceChild(newEl, oldEl);
       $content = $(this.menu.children[1]);
+      this.filterCollection.bind();
     };
 
     this.th.setAttribute('hasRefresh','hasRefresh');
@@ -166,7 +170,7 @@ export class FilterMenu {
     let self = this;
     // build holder div
     let dropdownFilterContent = document.createElement('div');
-    dropdownFilterContent.className = 'dropdown-filter-content';
+    dropdownFilterContent.classList.add('dropdown-filter-content', 'needs-binding');
     let stringFound = false;
     let count : {[element : string] : number} = {};
     let innerDivs = this.tds.reduce(function(arr, el: HTMLElement) {

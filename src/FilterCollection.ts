@@ -15,9 +15,9 @@ export class FilterCollection {
     this.target = target;
     this.options = options;
     this.ths = target.find('th' + options.columnSelector).toArray()
-    this.filterMenus = this.ths.map(function(th: HTMLElement, index: number) {
+    this.filterMenus = this.ths.map((th: HTMLElement, index: number) => {
       let column = $(th).index();
-      return new FilterMenu(target, th, column, index, options);
+      return new FilterMenu(target, th, column, index, options, this);
     });
     this.rows = target.find('tbody').find('tr').toArray();
     this.table = target.get(0);
@@ -28,10 +28,15 @@ export class FilterCollection {
     this.filterMenus.forEach(function(filterMenu) {
       filterMenu.initialize();
     });
+    this.bind();
+  }
+
+  public bind(): void {
     this.bindCheckboxes();
     this.bindSelectAllCheckboxes();
     this.bindSort();
     this.bindSearch();
+    this.target.find('.needs-binding').removeClass('needs-binding');
   }
 
   private bindCheckboxes(): void {
@@ -40,7 +45,7 @@ export class FilterCollection {
     let tbody = this.tbody;
     let ths = this.ths;
     let updateRowVisibility = this.updateRowVisibility;
-    this.target.find('.dropdown-filter-menu-item.item').change(function() {
+    this.target.find('.needs-binding .dropdown-filter-menu-item.item').change(function() {
       let index = $(this).data('index');
       let value = $(this).val();
       filterMenus[index].updateSelectAll();
@@ -54,7 +59,7 @@ export class FilterCollection {
     let tbody = this.tbody;
     let ths = this.ths;
     let updateRowVisibility = this.updateRowVisibility;
-    this.target.find('.dropdown-filter-menu-item.select-all').change(function() {
+    this.target.find('.needs-binding .dropdown-filter-menu-item.select-all').change(function() {
       let index = $(this).data('index');
       let value = this.checked;
       filterMenus[index].selectAllUpdate(value);
@@ -71,7 +76,7 @@ export class FilterCollection {
     let table = this.table;
     let options = this.options;
     let updateRowVisibility = this.updateRowVisibility;
-    this.target.find('.dropdown-filter-sort').click(function() {
+    this.target.find('.needs-binding .dropdown-filter-sort').click(function() {
       let $sortElement = $(this).find('span');
       let column = $sortElement.data('column');
       let order = $sortElement.attr('class');
@@ -94,7 +99,7 @@ export class FilterCollection {
       updateRowVisibility(filterMenus, rows, ths, tbody);
     };
     const debouncedHandler = debounce(handler);
-    this.target.find('.dropdown-filter-search').keyup(debouncedHandler);
+    this.target.find('.needs-binding .dropdown-filter-search').keyup(debouncedHandler);
   }
 
   private updateRowVisibility(filterMenus: Array<FilterMenu>, rows: Array<Element>, ths: Array<Element>, tbody:Element): void {

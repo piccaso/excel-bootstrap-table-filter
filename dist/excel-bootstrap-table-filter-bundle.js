@@ -28,7 +28,7 @@ var createClass = function () {
 }();
 
 var FilterMenu = function () {
-    function FilterMenu(target, th, column, index, options) {
+    function FilterMenu(target, th, column, index, options, filterCollection) {
         classCallCheck(this, FilterMenu);
 
         this.options = options;
@@ -36,6 +36,7 @@ var FilterMenu = function () {
         this.column = column;
         this.index = index;
         this.tds = target.find('tbody tr td:nth-child(' + (this.column + 1) + ')').toArray();
+        this.filterCollection = filterCollection;
     }
 
     createClass(FilterMenu, [{
@@ -53,6 +54,7 @@ var FilterMenu = function () {
                 var oldEl = _this.menu.children[1];
                 _this.menu.replaceChild(newEl, oldEl);
                 $content = $(_this.menu.children[1]);
+                _this.filterCollection.bind();
             };
             this.th.setAttribute('hasRefresh', 'hasRefresh');
             this.th.addEventListener('refresh', updateContent);
@@ -173,7 +175,7 @@ var FilterMenu = function () {
 
             var self = this;
             var dropdownFilterContent = document.createElement('div');
-            dropdownFilterContent.className = 'dropdown-filter-content';
+            dropdownFilterContent.classList.add('dropdown-filter-content', 'needs-binding');
             var stringFound = false;
             var count = {};
             var innerDivs = this.tds.reduce(function (arr, el) {
@@ -275,6 +277,8 @@ function debounce(fn) {
 
 var FilterCollection = function () {
     function FilterCollection(target, options) {
+        var _this = this;
+
         classCallCheck(this, FilterCollection);
 
         this.target = target;
@@ -282,7 +286,7 @@ var FilterCollection = function () {
         this.ths = target.find('th' + options.columnSelector).toArray();
         this.filterMenus = this.ths.map(function (th, index) {
             var column = $(th).index();
-            return new FilterMenu(target, th, column, index, options);
+            return new FilterMenu(target, th, column, index, options, _this);
         });
         this.rows = target.find('tbody').find('tr').toArray();
         this.table = target.get(0);
@@ -295,10 +299,16 @@ var FilterCollection = function () {
             this.filterMenus.forEach(function (filterMenu) {
                 filterMenu.initialize();
             });
+            this.bind();
+        }
+    }, {
+        key: 'bind',
+        value: function bind() {
             this.bindCheckboxes();
             this.bindSelectAllCheckboxes();
             this.bindSort();
             this.bindSearch();
+            this.target.find('.needs-binding').removeClass('needs-binding');
         }
     }, {
         key: 'bindCheckboxes',
@@ -308,7 +318,7 @@ var FilterCollection = function () {
             var tbody = this.tbody;
             var ths = this.ths;
             var updateRowVisibility = this.updateRowVisibility;
-            this.target.find('.dropdown-filter-menu-item.item').change(function () {
+            this.target.find('.needs-binding .dropdown-filter-menu-item.item').change(function () {
                 var index = $(this).data('index');
                 var value = $(this).val();
                 filterMenus[index].updateSelectAll();
@@ -323,7 +333,7 @@ var FilterCollection = function () {
             var tbody = this.tbody;
             var ths = this.ths;
             var updateRowVisibility = this.updateRowVisibility;
-            this.target.find('.dropdown-filter-menu-item.select-all').change(function () {
+            this.target.find('.needs-binding .dropdown-filter-menu-item.select-all').change(function () {
                 var index = $(this).data('index');
                 var value = this.checked;
                 filterMenus[index].selectAllUpdate(value);
@@ -341,7 +351,7 @@ var FilterCollection = function () {
             var table = this.table;
             var options = this.options;
             var updateRowVisibility = this.updateRowVisibility;
-            this.target.find('.dropdown-filter-sort').click(function () {
+            this.target.find('.needs-binding .dropdown-filter-sort').click(function () {
                 var $sortElement = $(this).find('span');
                 var column = $sortElement.data('column');
                 var order = $sortElement.attr('class');
@@ -365,7 +375,7 @@ var FilterCollection = function () {
                 updateRowVisibility(filterMenus, rows, ths, tbody);
             };
             var debouncedHandler = debounce(handler);
-            this.target.find('.dropdown-filter-search').keyup(debouncedHandler);
+            this.target.find('.needs-binding .dropdown-filter-search').keyup(debouncedHandler);
         }
     }, {
         key: 'updateRowVisibility',

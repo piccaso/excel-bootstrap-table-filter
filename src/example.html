@@ -23,6 +23,11 @@
       <p class="lead"></p>
   </section>
   <hr>
+  <div style="text-align: center;">
+    <a href="javascript:document.querySelectorAll('[hasRefresh]').forEach(e=>e.dispatchEvent(new CustomEvent('refresh')))">Refresh Headers</a> |
+    <a href="javascript:document.querySelectorAll('td').forEach(e=>e.contentEditable=true)">Editable</a>
+  </div>
+  <hr>
 <div class="container">
   <div class="row">
     <div class="col-md-12">
@@ -225,10 +230,6 @@
     </div>
   </div>
 </div>
-
-<hr><a href="javascript:document.querySelectorAll('[hasRefresh]').forEach(e=>e.dispatchEvent(new CustomEvent('refresh')))">Refresh Headers</a>
-  
-
   <script>
     // Use the plugin once the DOM has been loaded.
     $(function () {
