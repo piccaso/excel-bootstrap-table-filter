@@ -2,7 +2,7 @@ import $ from 'jquery';
 import { FilterCollection } from './FilterCollection'
 
 // Define the plugin function on the jQuery extension point.
-($.fn as any).excelTableFilter = function (this: JQuery, options: Options) {
+($.fn as any).excelTableFilter = function (this: JQuery, options: Options) : JQuery {
   let target = this;
   // Merge the global options with the per-call options.
   options = $.extend({}, ($.fn as any).excelTableFilter.options, options);
@@ -10,6 +10,7 @@ import { FilterCollection } from './FilterCollection'
   if (typeof options.columnSelector === 'undefined') options.columnSelector = '';
   if (typeof options.sort === 'undefined') options.sort = true;
   if (typeof options.search === 'undefined') options.search = true;
+  if (typeof options.autoUpdate === 'undefined') options.autoUpdate = true;
 
   if (typeof options.captions === 'undefined') options.captions = {
     a_to_z: 'A to Z',
@@ -20,7 +21,7 @@ import { FilterCollection } from './FilterCollection'
 
   let filterCollection = new FilterCollection(target, options);
   filterCollection.initialize();
-
+  
   // Return the jQuery object for chaining.
   return target;
 };

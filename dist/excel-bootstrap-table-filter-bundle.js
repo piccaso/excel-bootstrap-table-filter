@@ -3,6 +3,24 @@
 
 $$1 = 'default' in $$1 ? $$1['default'] : $$1;
 
+function debounce(fn) {
+    var ms = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 600;
+
+    var timeoutId = void 0;
+    return function () {
+        var _this = this;
+
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(function () {
+            return fn.apply(_this, args);
+        }, ms);
+    };
+}
+
 var classCallCheck = function (instance, Constructor) {
   if (!(instance instanceof Constructor)) {
     throw new TypeError("Cannot call a class as a function");
@@ -26,6 +44,56 @@ var createClass = function () {
     return Constructor;
   };
 }();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var toConsumableArray = function (arr) {
+  if (Array.isArray(arr)) {
+    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
+
+    return arr2;
+  } else {
+    return Array.from(arr);
+  }
+};
 
 var FilterMenu = function () {
     function FilterMenu(target, th, column, index, options, filterCollection) {
@@ -56,8 +124,18 @@ var FilterMenu = function () {
                 $content = $(_this.menu.children[1]);
                 _this.filterCollection.bind();
             };
+            var debounced = debounce(updateContent, 50);
+            var eventHandler = function eventHandler() {
+                debounced();
+            };
+            var refresh = "refresh";
             this.th.setAttribute('hasRefresh', 'hasRefresh');
-            this.th.addEventListener('refresh', updateContent);
+            this.th.addEventListener(refresh, eventHandler);
+            if (this.options.autoUpdate) {
+                this.tds.forEach(function (el) {
+                    return el.addEventListener(refresh, eventHandler);
+                });
+            }
             $trigger.click(function () {
                 return $content.toggle();
             });
@@ -257,24 +335,6 @@ var FilterMenu = function () {
     return FilterMenu;
 }();
 
-function debounce(fn) {
-    var ms = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 600;
-
-    var timeoutId = void 0;
-    return function () {
-        var _this = this;
-
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-        }
-
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(function () {
-            return fn.apply(_this, args);
-        }, ms);
-    };
-}
-
 var FilterCollection = function () {
     function FilterCollection(target, options) {
         var _this = this;
@@ -300,6 +360,7 @@ var FilterCollection = function () {
                 filterMenu.initialize();
             });
             this.bind();
+            this.bindAutoUpdate();
         }
     }, {
         key: 'bind',
@@ -311,6 +372,57 @@ var FilterCollection = function () {
             this.target.find('.needs-binding').removeClass('needs-binding');
         }
     }, {
+        key: 'bindAutoUpdate',
+        value: function bindAutoUpdate() {
+            var _this2 = this;
+
+            if (!this.options.autoUpdate) return;
+            var observer = new MutationObserver(function (mut) {
+                var targets = [];
+                var reloadAll = false;
+                var _iteratorNormalCompletion = true;
+                var _didIteratorError = false;
+                var _iteratorError = undefined;
+
+                try {
+                    for (var _iterator = mut[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+                        var m = _step.value;
+
+                        if (m.target.nodeName.toLowerCase() === 'td') targets.push(m.target);
+                        if (m.target.parentNode && m.target.parentNode.nodeName.toLowerCase() === 'td') targets.push(m.target.parentNode);
+                        if (m.removedNodes && m.removedNodes.length > 0) Array.from(m.removedNodes).forEach(function (rn) {
+                            if (!rn.hasChildNodes) return;
+                            if (rn.nodeName.toLowerCase() === 'tr') reloadAll = true;
+                        });
+                    }
+                } catch (err) {
+                    _didIteratorError = true;
+                    _iteratorError = err;
+                } finally {
+                    try {
+                        if (!_iteratorNormalCompletion && _iterator.return) {
+                            _iterator.return();
+                        }
+                    } finally {
+                        if (_didIteratorError) {
+                            throw _iteratorError;
+                        }
+                    }
+                }
+
+                if (reloadAll) {
+                    targets.length = 0;
+                    targets.push.apply(targets, toConsumableArray(_this2.ths));
+                }
+                var event = new CustomEvent('refresh');
+                targets.forEach(function (t) {
+                    return t.dispatchEvent(event);
+                });
+            });
+            var config = { attributes: false, childList: true, subtree: true, characterData: true };
+            observer.observe(this.table.querySelector('tbody'), config);
+        }
+    }, {
         key: 'bindCheckboxes',
         value: function bindCheckboxes() {
             var filterMenus = this.filterMenus;
@@ -320,7 +432,6 @@ var FilterCollection = function () {
             var updateRowVisibility = this.updateRowVisibility;
             this.target.find('.needs-binding .dropdown-filter-menu-item.item').change(function () {
                 var index = $(this).data('index');
-                var value = $(this).val();
                 filterMenus[index].updateSelectAll();
                 updateRowVisibility(filterMenus, rows, ths, tbody);
             });
@@ -448,6 +559,7 @@ $$1.fn.excelTableFilter = function (options) {
     if (typeof options.columnSelector === 'undefined') options.columnSelector = '';
     if (typeof options.sort === 'undefined') options.sort = true;
     if (typeof options.search === 'undefined') options.search = true;
+    if (typeof options.autoUpdate === 'undefined') options.autoUpdate = true;
     if (typeof options.captions === 'undefined') options.captions = {
         a_to_z: 'A to Z',
         z_to_a: 'Z to A',

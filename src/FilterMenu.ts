@@ -1,4 +1,6 @@
 import { FilterCollection } from './FilterCollection'
+import debounce from './Debounce'
+
 export class FilterMenu {
 
   th:                 Element;
@@ -38,10 +40,18 @@ export class FilterMenu {
       $content = $(this.menu.children[1]);
       this.filterCollection.bind();
     };
+    const debounced = debounce(updateContent, 50);
+    const eventHandler = ()=>{
+      debounced();
+    };
 
+    const refresh = "refresh";
     this.th.setAttribute('hasRefresh','hasRefresh');
-    this.th.addEventListener('refresh', updateContent);
-
+    this.th.addEventListener(refresh, eventHandler);
+    if(this.options.autoUpdate) {
+      this.tds.forEach(el => el.addEventListener(refresh, eventHandler));
+    }
+    
     // toggle hide/show when the trigger is clicked
     $trigger.click(() => $content.toggle());
 
