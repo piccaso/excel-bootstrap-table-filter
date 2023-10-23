@@ -45,56 +45,6 @@ var createClass = function () {
   };
 }();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-var toConsumableArray = function (arr) {
-  if (Array.isArray(arr)) {
-    for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) arr2[i] = arr[i];
-
-    return arr2;
-  } else {
-    return Array.from(arr);
-  }
-};
-
 var FilterMenu = function () {
     function FilterMenu(target, th, column, index, options, filterCollection) {
         classCallCheck(this, FilterMenu);
@@ -103,8 +53,8 @@ var FilterMenu = function () {
         this.th = th;
         this.column = column;
         this.index = index;
-        this.tds = target.find('tbody tr td:nth-child(' + (this.column + 1) + ')').toArray();
         this.filterCollection = filterCollection;
+        this.target = target;
     }
 
     createClass(FilterMenu, [{
@@ -129,10 +79,9 @@ var FilterMenu = function () {
                 debounced();
             };
             var refresh = "refresh";
-            this.th.setAttribute('hasRefresh', 'hasRefresh');
             this.th.addEventListener(refresh, eventHandler);
             if (this.options.autoUpdate) {
-                this.tds.forEach(function (el) {
+                this.getTds().forEach(function (el) {
                     return el.addEventListener(refresh, eventHandler);
                 });
             }
@@ -143,6 +92,13 @@ var FilterMenu = function () {
                 if (!$menu.is(el.target) && $menu.has(el.target).length === 0) {
                     $content.hide();
                 }
+            });
+        }
+    }, {
+        key: 'getTds',
+        value: function getTds() {
+            return this.target.find('tbody tr td:nth-child(' + (this.column + 1) + ')').toArray().map(function (e) {
+                return e;
             });
         }
     }, {
@@ -256,7 +212,7 @@ var FilterMenu = function () {
             dropdownFilterContent.classList.add('dropdown-filter-content', 'needs-binding');
             var stringFound = false;
             var count = {};
-            var innerDivs = this.tds.reduce(function (arr, el) {
+            var innerDivs = this.getTds().reduce(function (arr, el) {
                 var elt = el.innerText.trim();
                 if (count[elt] === undefined) {
                     var elc = el.cloneNode(true);
@@ -374,12 +330,9 @@ var FilterCollection = function () {
     }, {
         key: 'bindAutoUpdate',
         value: function bindAutoUpdate() {
-            var _this2 = this;
-
             if (!this.options.autoUpdate) return;
             var observer = new MutationObserver(function (mut) {
                 var targets = [];
-                var reloadAll = false;
                 var _iteratorNormalCompletion = true;
                 var _didIteratorError = false;
                 var _iteratorError = undefined;
@@ -390,10 +343,6 @@ var FilterCollection = function () {
 
                         if (m.target.nodeName.toLowerCase() === 'td') targets.push(m.target);
                         if (m.target.parentNode && m.target.parentNode.nodeName.toLowerCase() === 'td') targets.push(m.target.parentNode);
-                        if (m.removedNodes && m.removedNodes.length > 0) Array.from(m.removedNodes).forEach(function (rn) {
-                            if (!rn.hasChildNodes) return;
-                            if (rn.nodeName.toLowerCase() === 'tr') reloadAll = true;
-                        });
                     }
                 } catch (err) {
                     _didIteratorError = true;
@@ -410,10 +359,6 @@ var FilterCollection = function () {
                     }
                 }
 
-                if (reloadAll) {
-                    targets.length = 0;
-                    targets.push.apply(targets, toConsumableArray(_this2.ths));
-                }
                 var event = new CustomEvent('refresh');
                 targets.forEach(function (t) {
                     return t.dispatchEvent(event);
@@ -571,6 +516,16 @@ $$1.fn.excelTableFilter = function (options) {
     return target;
 };
 $$1.fn.excelTableFilter.options = {};
+$$1.fn.excelTableFilterRefresh = function () {
+    var refreshEvent = new CustomEvent('refresh');
+    var selector = "th";
+    var dispatchFn = function dispatchFn(i, e) {
+        return e.dispatchEvent(refreshEvent);
+    };
+    this.find(selector).each(dispatchFn);
+    if (this.has(selector)) this.each(dispatchFn);
+    return this;
+};
 
 }(jQuery));
 //# sourceMappingURL=excel-bootstrap-table-filter-bundle.js.map

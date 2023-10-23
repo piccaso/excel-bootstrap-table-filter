@@ -4,7 +4,6 @@ import debounce from './Debounce'
 export class FilterMenu {
 
   th:                 Element;
-  tds:                Array<Element>;
   column:             number;
   index:              number;
   menu:               HTMLElement;
@@ -20,8 +19,8 @@ export class FilterMenu {
     this.th = th;
     this.column = column;
     this.index = index;
-    this.tds = target.find('tbody tr td:nth-child(' + (this.column + 1) + ')').toArray();
     this.filterCollection = filterCollection;
+    this.target = target;
   }
 
   public initialize(): void {
@@ -46,10 +45,9 @@ export class FilterMenu {
     };
 
     const refresh = "refresh";
-    this.th.setAttribute('hasRefresh','hasRefresh');
     this.th.addEventListener(refresh, eventHandler);
     if(this.options.autoUpdate) {
-      this.tds.forEach(el => el.addEventListener(refresh, eventHandler));
+      this.getTds().forEach(el => el.addEventListener(refresh, eventHandler));
     }
     
     // toggle hide/show when the trigger is clicked
@@ -61,6 +59,10 @@ export class FilterMenu {
         $content.hide();
       }
     });
+  }
+
+  public getTds(): Array<HTMLElement> {
+    return this.target.find('tbody tr td:nth-child(' + (this.column + 1) + ')').toArray().map(e => e as HTMLElement);
   }
 
   public searchToggle(value: string): void {
@@ -183,7 +185,7 @@ export class FilterMenu {
     dropdownFilterContent.classList.add('dropdown-filter-content', 'needs-binding');
     let stringFound = false;
     let count : {[element : string] : number} = {};
-    let innerDivs = this.tds.reduce(function(arr, el: HTMLElement) {
+    let innerDivs = this.getTds().reduce(function(arr, el: HTMLElement) {
       // get unique values in column
       let elt = el.innerText.trim()
       if (count[elt] === undefined) {

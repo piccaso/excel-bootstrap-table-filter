@@ -28,3 +28,15 @@ import { FilterCollection } from './FilterCollection'
 
 // Define the plugin's global default options.
 ($.fn as any).excelTableFilter.options = {};
+
+// Rerenders the table header
+// For one column when used on `td`
+// Every column when used on `table`
+($.fn as any).excelTableFilterRefresh = function(this: JQuery) : JQuery {
+  const refreshEvent = new CustomEvent('refresh');
+  const selector = "th";
+  const dispatchFn = (i: number, e: Element): boolean => e.dispatchEvent(refreshEvent);
+  this.find(selector).each(dispatchFn);
+  if (this.has(selector)) this.each(dispatchFn);
+  return this;
+}

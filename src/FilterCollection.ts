@@ -44,19 +44,10 @@ export class FilterCollection {
     if(!this.options.autoUpdate) return;
     const observer = new MutationObserver((mut)=>{
       let targets: Array<Node> = [];
-      let reloadAll: boolean = false;
       for (const m of mut) {
         if(m.target.nodeName.toLowerCase() === 'td') targets.push(m.target);
         if(m.target.parentNode && m.target.parentNode.nodeName.toLowerCase() === 'td') targets.push(m.target.parentNode);
-        if(m.removedNodes && m.removedNodes.length > 0) Array.from(m.removedNodes).forEach(rn=>{
-          if(!rn.hasChildNodes) return;
-          if(rn.nodeName.toLowerCase() === 'tr') reloadAll = true;
-        });
       }
-      if(reloadAll) {
-        targets.length = 0;
-        targets.push(...this.ths);
-      } 
       const event = new CustomEvent('refresh');
       targets.forEach(t=>t.dispatchEvent(event));
     });
