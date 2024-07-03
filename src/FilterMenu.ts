@@ -183,7 +183,7 @@ export class FilterMenu {
     // build holder div
     let dropdownFilterContent = document.createElement('div');
     dropdownFilterContent.classList.add('dropdown-filter-content', 'needs-binding');
-    let stringFound = false;
+    let collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
     let count : {[element : string] : number} = {};
     let innerDivs = this.getTds().reduce(function(arr, el: HTMLElement) {
       // get unique values in column
@@ -202,22 +202,10 @@ export class FilterMenu {
     .map(function(v) { 
       v.innerText += ' (' + String(count[v.innerText.trim()]) + ')'; 
       const str = v.innerText.toLowerCase();
-      const nr = Number(str);
-      if(!stringFound){
-        if(isNaN(nr)) stringFound=true;
-      }
-
-      return {el:v,str,nr}; 
+      return {el:v,str}; 
     })
     .sort(function(a, b) {
-      if (stringFound) {
-        if(a.str < b.str) return -1;
-        if(a.str > b.str) return  1;
-      } else {
-        if(a.nr < b.nr) return -1;
-        if(a.nr > b.nr) return  1;
-      }
-      return 0;
+      return collator.compare(a.str, b.str);
     })
     // create dropdown filter items out of each value
     .map( (td) => {

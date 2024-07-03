@@ -210,7 +210,7 @@ var FilterMenu = function () {
             var self = this;
             var dropdownFilterContent = document.createElement('div');
             dropdownFilterContent.classList.add('dropdown-filter-content', 'needs-binding');
-            var stringFound = false;
+            var collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
             var count = {};
             var innerDivs = this.getTds().reduce(function (arr, el) {
                 var elt = el.innerText.trim();
@@ -225,20 +225,9 @@ var FilterMenu = function () {
             }, []).map(function (v) {
                 v.innerText += ' (' + String(count[v.innerText.trim()]) + ')';
                 var str = v.innerText.toLowerCase();
-                var nr = Number(str);
-                if (!stringFound) {
-                    if (isNaN(nr)) stringFound = true;
-                }
-                return { el: v, str: str, nr: nr };
+                return { el: v, str: str };
             }).sort(function (a, b) {
-                if (stringFound) {
-                    if (a.str < b.str) return -1;
-                    if (a.str > b.str) return 1;
-                } else {
-                    if (a.nr < b.nr) return -1;
-                    if (a.nr > b.nr) return 1;
-                }
-                return 0;
+                return collator.compare(a.str, b.str);
             }).map(function (td) {
                 return _this2.dropdownFilterItem(td.el, self);
             });
@@ -470,25 +459,14 @@ var FilterCollection = function () {
             var flip = 1;
             if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
             var tbody = table.querySelector('tbody');
-            var stringFound = false;
+            var collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
             var rows = Array.from(tbody.querySelectorAll('tr')).map(function (el) {
                 return el;
             }).map(function (el) {
                 var str = el.children[column].innerText.toLowerCase();
-                var nr = Number(str);
-                if (!stringFound) {
-                    if (isNaN(nr)) stringFound = true;
-                }
-                return { el: el, nr: nr, str: str };
+                return { el: el, str: str };
             }).sort(function (a, b) {
-                if (stringFound) {
-                    if (a.str < b.str) return -1 * flip;
-                    if (a.str > b.str) return 1 * flip;
-                } else {
-                    if (a.nr < b.nr) return -1 * flip;
-                    if (a.nr > b.nr) return 1 * flip;
-                }
-                return 0;
+                return collator.compare(a.str, b.str) * flip;
             });
             for (var i = 0; i < rows.length; i++) {
                 tbody.appendChild(rows[i].el);

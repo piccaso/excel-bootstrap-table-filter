@@ -155,25 +155,14 @@ export class FilterCollection {
     let flip = 1;
     if (order === options.captions.z_to_a.toLowerCase().split(' ').join('-')) flip = -1;
     const tbody = table.querySelector('tbody');
-    let stringFound = false;
+    let collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
     const rows = Array.from(tbody.querySelectorAll('tr'))
     .map(el => el as HTMLElement)
     .map(el => {
       let str = (el.children[column] as HTMLElement).innerText.toLowerCase();
-      let nr = Number(str);
-      if (!stringFound) {
-        if (isNaN(nr)) stringFound = true;
-      }
-      return { el, nr, str };
+      return { el, str };
     }).sort((a, b) => {
-      if (stringFound) {
-        if (a.str < b.str) return -1 * flip;
-        if (a.str > b.str) return 1 * flip;
-      } else {
-        if (a.nr < b.nr) return -1 * flip;
-        if (a.nr > b.nr) return 1 * flip;
-      }
-      return 0;
+      return collator.compare(a.str, b.str) * flip;
     });
 
     for (var i = 0; i < rows.length; i++) {
